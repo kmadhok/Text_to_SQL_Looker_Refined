@@ -3,6 +3,7 @@
 import logging
 import json
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, List, Optional, Set, Tuple, Any
 from dataclasses import dataclass
 from enum import Enum
@@ -139,8 +140,8 @@ class SchemaIntelligenceService:
         return schema_intelligence
     
     def _analyze_field_semantics(self, grounding_index: GroundingIndex) -> Dict[str, EnrichedFieldInfo]:
-        """Analyze semantic meaning of each field."""
-        self.logger.info("Analyzing field semantics with Gemini")
+        """Analyze semantic meaning of each field using parallel processing."""
+        self.logger.info("Analyzing field semantics with Gemini (parallel processing)")
         
         enriched_fields = {}
         
@@ -153,10 +154,26 @@ class SchemaIntelligenceService:
                     fields_by_table[table] = []
                 fields_by_table[table].append(field_info)
         
-        for table_name, fields in fields_by_table.items():
-            table_analysis = self._analyze_table_fields(table_name, fields)
-            enriched_fields.update(table_analysis)
+        # Process tables in parallel using ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            # Submit all table analysis tasks
+            future_to_table = {
+                executor.submit(self._analyze_table_fields, table_name, fields): table_name
+                for table_name, fields in fields_by_table.items()
+            }
+            
+            # Collect results as they complete
+            for future in as_completed(future_to_table):
+                table_name = future_to_table[future]
+                try:
+                    table_analysis = future.result()
+                    enriched_fields.update(table_analysis)
+                    self.logger.debug(f"Completed field analysis for table: {table_name}")
+                except Exception as e:
+                    self.logger.error(f"Field analysis failed for table {table_name}: {e}")
+                    # Continue processing other tables
         
+        self.logger.info(f"Completed parallel field analysis for {len(fields_by_table)} tables")
         return enriched_fields
     
     def _analyze_table_fields(self, table_name: str, fields: List[FieldInfo]) -> Dict[str, EnrichedFieldInfo]:
@@ -323,14 +340,16 @@ CRITICAL: For e-commerce/transaction data:
             return FieldSemanticType.DESCRIPTIVE
     
     def _analyze_table_semantics(self, grounding_index: GroundingIndex, enriched_fields: Dict[str, EnrichedFieldInfo]) -> Dict[str, TableSemantics]:
-        """Analyze business purpose of each table."""
-        self.logger.info("Analyzing table business semantics")
+        """Analyze business purpose of each table using parallel processing."""
+        self.logger.info("Analyzing table business semantics (parallel processing)")
         
         table_semantics = {}
         
         # Get all unique tables
         all_views = grounding_index.lookml_project.get_all_views()
         
+        # Prepare table analysis tasks
+        table_analysis_tasks = []
         for view_name, view in all_views.items():
             # Collect field information for this table
             table_fields = []
@@ -339,9 +358,28 @@ CRITICAL: For e-commerce/transaction data:
                     table_fields.append(enriched_field)
             
             if table_fields:
-                semantics = self._analyze_single_table_semantics(view_name, view, table_fields)
-                table_semantics[view_name] = semantics
+                table_analysis_tasks.append((view_name, view, table_fields))
         
+        # Process tables in parallel using ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            # Submit all table analysis tasks
+            future_to_table = {
+                executor.submit(self._analyze_single_table_semantics, view_name, view, table_fields): view_name
+                for view_name, view, table_fields in table_analysis_tasks
+            }
+            
+            # Collect results as they complete
+            for future in as_completed(future_to_table):
+                view_name = future_to_table[future]
+                try:
+                    semantics = future.result()
+                    table_semantics[view_name] = semantics
+                    self.logger.debug(f"Completed table semantic analysis for: {view_name}")
+                except Exception as e:
+                    self.logger.error(f"Table semantic analysis failed for {view_name}: {e}")
+                    # Continue processing other tables
+        
+        self.logger.info(f"Completed parallel table semantic analysis for {len(table_analysis_tasks)} tables")
         return table_semantics
     
     def _analyze_single_table_semantics(self, table_name: str, view, enriched_fields: List[EnrichedFieldInfo]) -> TableSemantics:
