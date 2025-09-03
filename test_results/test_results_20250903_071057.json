@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-09-03T07:10:57.133763",
+  "total_tests": 0,
+  "passed_tests": 0,
+  "failed_tests": 0,
+  "expected_failures": 0,
+  "unexpected_failures": 0,
+  "total_execution_time": 9.5367431640625e-07,
+  "total_llm_cost": 0,
+  "results_by_category": {},
+  "results_by_difficulty": {},
+  "individual_results": []
+}

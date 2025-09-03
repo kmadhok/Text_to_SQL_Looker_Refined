@@ -1,0 +1,5 @@
+2025-09-03 07:10:56,461 - tests.test_runner - INFO - Initializing TextToSQLEngine for testing
+2025-09-03 07:10:56,464 - src.main - INFO - Initializing LookML Text-to-SQL Engine
+2025-09-03 07:10:57,133 - src.bigquery.client - INFO - Initialized BigQuery client for project: brainrot, location: US
+2025-09-03 07:10:57,133 - tests.test_runner - INFO - Running 0 test cases
+2025-09-03 07:10:57,134 - tests.test_runner - INFO - Detailed results saved to test_results/test_results_20250903_071057.json

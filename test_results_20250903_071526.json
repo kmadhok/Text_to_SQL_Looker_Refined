@@ -1,0 +1,1001 @@
+{
+  "timestamp": "2025-09-03T07:22:26.310080",
+  "total_questions": 33,
+  "successful_queries": 33,
+  "failed_queries": 0,
+  "total_execution_time": 419.3880739212036,
+  "total_llm_cost": 0.21325875,
+  "config_used": null,
+  "results": [
+    {
+      "question_number": 1,
+      "question": "Show me total revenue",
+      "execution_time": 7.651971101760864,
+      "success": true,
+      "sql_output": "SELECT\n  sum(t1.sale_price) AS total_revenue\nFROM\n  `bigquery-public-data.thelook_ecommerce.order_items` AS t1\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.00933,
+      "llm_tokens": {
+        "prompt_tokens": 2328,
+        "completion_tokens": 40,
+        "total_tokens": 2368
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 7.6344239711761475,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 2,
+      "question": "Count all users",
+      "execution_time": 5.766648054122925,
+      "success": true,
+      "sql_output": "SELECT\n    count(t1.id)\n  FROM\n    thelook_ecommerce.model.users AS t1\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.00319125,
+      "llm_tokens": {
+        "prompt_tokens": 747,
+        "completion_tokens": 26,
+        "total_tokens": 773
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 5.766596794128418,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 3,
+      "question": "What's the average order value?",
+      "execution_time": 3.7154078483581543,
+      "success": true,
+      "sql_output": "SELECT\n    sum(t1.sale_price) / count(DISTINCT t1.order_id)\n  FROM\n    thelook_ecommerce.model.order_items AS t1\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.002835,
+      "llm_tokens": {
+        "prompt_tokens": 568,
+        "completion_tokens": 47,
+        "total_tokens": 615
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 3.715380907058716,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 4,
+      "question": "How many products do we have?",
+      "execution_time": 6.8316569328308105,
+      "success": true,
+      "sql_output": "SELECT\n    count(products.id)\n  FROM\n    thelook_ecommerce.model.products AS products\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.00217125,
+      "llm_tokens": {
+        "prompt_tokens": 483,
+        "completion_tokens": 24,
+        "total_tokens": 507
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 6.831640005111694,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 5,
+      "question": "Show me revenue last month",
+      "execution_time": 24.170664072036743,
+      "success": true,
+      "sql_output": "SELECT\n  sum(t1.sale_price)\nFROM\n  `thelook_ecommerce.order_items` AS t1\nWHERE\n  TIMESTAMP_TRUNC(t1.created_at, MONTH) = TIMESTAMP_TRUNC(TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1 MONTH), MONTH)\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.0030225,
+      "llm_tokens": {
+        "prompt_tokens": 514,
+        "completion_tokens": 73,
+        "total_tokens": 587
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 24.17061710357666,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 6,
+      "question": "Count orders this year",
+      "execution_time": 4.206245183944702,
+      "success": true,
+      "sql_output": "SELECT\n    count(DISTINCT t1.order_id)\n  FROM\n    thelook_ecommerce.model.order_items AS t1\n  WHERE EXTRACT(YEAR FROM t1.created) = EXTRACT(YEAR FROM CURRENT_TIMESTAMP())\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.0037012499999999997,
+      "llm_tokens": {
+        "prompt_tokens": 747,
+        "completion_tokens": 60,
+        "total_tokens": 807
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 4.206226825714111,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 7,
+      "question": "What's our daily revenue trend?",
+      "execution_time": 9.103250980377197,
+      "success": true,
+      "sql_output": "SELECT\n    DATE(t1.created_at) AS order_date,\n    sum(t2.sale_price) AS daily_revenue\n  FROM\n    `thelook_ecommerce.orders` AS t1\n    INNER JOIN `thelook_ecommerce.order_items` AS t2 ON t1.order_id = t2.order_id\n  GROUP BY 1\nORDER BY\n  order_date\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.00407625,
+      "llm_tokens": {
+        "prompt_tokens": 695,
+        "completion_tokens": 98,
+        "total_tokens": 793
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 9.103193998336792,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 8,
+      "question": "How many users signed up last week?",
+      "execution_time": 26.309880018234253,
+      "success": true,
+      "sql_output": "SELECT\n    count(t1.id)\n  FROM\n    thelook_ecommerce.model.users AS t1\n  WHERE\n    t1.created_at >= timestamp_sub(current_timestamp(), INTERVAL 1 WEEK)\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.0027825000000000003,
+      "llm_tokens": {
+        "prompt_tokens": 518,
+        "completion_tokens": 56,
+        "total_tokens": 574
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 26.309760093688965,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 9,
+      "question": "Show me revenue by product category",
+      "execution_time": 13.426786184310913,
+      "success": true,
+      "sql_output": "SELECT\n    t1.product_category,\n    sum(t1.product_retail_price) AS revenue\n  FROM\n    `thelook_ecommerce.model.inventory_items` AS t1\n  GROUP BY 1\nORDER BY\n  revenue DESC\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.inventory_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.00423375,
+      "llm_tokens": {
+        "prompt_tokens": 877,
+        "completion_tokens": 63,
+        "total_tokens": 940
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 13.42667293548584,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 10,
+      "question": "Count users by state",
+      "execution_time": 11.397507190704346,
+      "success": true,
+      "sql_output": "SELECT\n    t1.state,\n    count(t1.id)\n  FROM\n    `thelook_ecommerce.model.users` AS t1\n  GROUP BY 1\nORDER BY\n  2 DESC\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.users",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.003615,
+      "llm_tokens": {
+        "prompt_tokens": 772,
+        "completion_tokens": 48,
+        "total_tokens": 820
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 11.39729905128479,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 11,
+      "question": "What's average order value by month?",
+      "execution_time": 6.890727996826172,
+      "success": true,
+      "sql_output": "SELECT\n    DATE_TRUNC(t1.created, MONTH) AS order_month,\n    sum(t1.sale_price) / count(DISTINCT t1.order_id) AS average_order_value\n  FROM\n    thelook_ecommerce.model.order_items AS t1\n  GROUP BY 1\nORDER BY\n  order_month\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.0034237500000000006,
+      "llm_tokens": {
+        "prompt_tokens": 569,
+        "completion_tokens": 86,
+        "total_tokens": 655
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 6.890644073486328,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 12,
+      "question": "Show me top 10 customers by revenue",
+      "execution_time": 7.211993932723999,
+      "success": true,
+      "sql_output": "SELECT\n    t2.id,\n    t2.first_name,\n    t2.last_name,\n    sum(t1.sale_price) AS total_revenue\n  FROM\n    `bigquery-public-data.thelook_ecommerce.order_items` AS t1\n    INNER JOIN `bigquery-public-data.thelook_ecommerce.users` AS t2 ON t1.user_id = t2.id\n  GROUP BY 1, 2, 3\nORDER BY\n  total_revenue DESC\nLIMIT 10",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.0107475,
+      "llm_tokens": {
+        "prompt_tokens": 2342,
+        "completion_tokens": 131,
+        "total_tokens": 2473
+      },
+      "limit_applied": false,
+      "validation_passed": null,
+      "processing_time": 7.2119128704071045,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 13,
+      "question": "Show me month over month revenue growth",
+      "execution_time": 9.747491121292114,
+      "success": true,
+      "sql_output": "WITH MonthlyRevenue AS (\n  SELECT\n    DATE_TRUNC(CAST(order_items.created AS DATE), MONTH) AS month,\n    SUM(order_items.sale_price) AS total_revenue\n  FROM\n    `bigquery-public-data.thelook_ecommerce.order_items` AS order_items\n  GROUP BY\n    1\n),\nLaggedRevenue AS (\n  SELECT\n    month,\n    total_revenue,\n    LAG(total_revenue, 1) OVER (\n      ORDER BY\n        month\n    ) AS previous_month_revenue\n  FROM\n    MonthlyRevenue\n)\nSELECT\n  LaggedRevenue.month,\n  LaggedRevenue.total_revenue,\n  LaggedRevenue.previous_month_revenue,\n  (\n    LaggedRevenue.total_revenue - LaggedRevenue.previous_month_revenue\n  ) / LaggedRevenue.previous_month_revenue AS revenue_growth_rate\nFROM\n  LaggedRevenue\nWHERE\n  LaggedRevenue.previous_month_revenue IS NOT NULL\nORDER BY\n  LaggedRevenue.month\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.012363750000000001,
+      "llm_tokens": {
+        "prompt_tokens": 2301,
+        "completion_tokens": 249,
+        "total_tokens": 2550
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 9.747434854507446,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 14,
+      "question": "Compare this year's sales to last year",
+      "execution_time": 18.37529993057251,
+      "success": true,
+      "sql_output": "SELECT\n  sum(\n    CASE\n      WHEN EXTRACT(\n        YEAR\n        FROM\n          t2.created_at\n      ) = EXTRACT(\n        YEAR\n        FROM\n          CURRENT_DATE()\n      ) THEN t1.sale_price\n      ELSE 0\n    END\n  ) AS this_year_sales,\n  sum(\n    CASE\n      WHEN EXTRACT(\n        YEAR\n        FROM\n          t2.created_at\n      ) = EXTRACT(\n        YEAR\n        FROM\n          CURRENT_DATE()\n      ) - 1 THEN t1.sale_price\n      ELSE 0\n    END\n  ) AS last_year_sales\nFROM\n  `thelook_ecommerce.order_items` AS t1\n  INNER JOIN `thelook_ecommerce.orders` AS t2 ON t1.order_id = t2.id\nWHERE\n  EXTRACT(\n    YEAR\n    FROM\n      t2.created_at\n  ) IN (\n    EXTRACT(\n      YEAR\n      FROM\n        CURRENT_DATE()\n    ),\n    EXTRACT(\n      YEAR\n      FROM\n        CURRENT_DATE()\n    ) - 1\n  )\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.0060225,
+      "llm_tokens": {
+        "prompt_tokens": 518,
+        "completion_tokens": 272,
+        "total_tokens": 790
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 18.375243186950684,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 15,
+      "question": "What's our conversion rate from users to orders?",
+      "execution_time": 22.92113423347473,
+      "success": true,
+      "sql_output": "SELECT\n  CAST(COUNT(DISTINCT CASE WHEN t2.event_type = 'purchase' THEN t2.user_id END) AS FLOAT64) / COUNT(DISTINCT t1.id) AS conversion_rate\nFROM\n  thelook_ecommerce.model.users AS t1\nLEFT JOIN\n  thelook_ecommerce.model.events AS t2\n  ON t1.id = t2.user_id\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.00410625,
+      "llm_tokens": {
+        "prompt_tokens": 699,
+        "completion_tokens": 99,
+        "total_tokens": 798
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 22.921074867248535,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 16,
+      "question": "Show me revenue per user by cohort",
+      "execution_time": 16.119858026504517,
+      "success": true,
+      "sql_output": "WITH user_cohort AS (\n  SELECT\n    users.id AS user_id,\n    DATE_TRUNC(users.created_at, MONTH) AS cohort_month\n  FROM\n    `thelook_ecommerce.users` AS users\n)\nSELECT\n  user_cohort.cohort_month,\n  SUM(order_items.sale_price) / COUNT(DISTINCT order_items.user_id) AS revenue_per_user\nFROM\n  `thelook_ecommerce.order_items` AS order_items\n  JOIN\n    user_cohort\n    ON order_items.user_id = user_cohort.user_id\nGROUP BY\n  1\nORDER BY\n  1\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.users",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.00490125,
+      "llm_tokens": {
+        "prompt_tokens": 671,
+        "completion_tokens": 159,
+        "total_tokens": 830
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 16.119802236557007,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 17,
+      "question": "Show me 7-day rolling average of daily orders",
+      "execution_time": 8.937703132629395,
+      "success": true,
+      "sql_output": "WITH daily_orders AS (\n  SELECT\n    CAST(orders.created AS DATE) AS order_date,\n    COUNT(orders.order_id) AS num_orders\n  FROM\n    `bigquery-public-data.thelook_ecommerce.orders` AS orders\n  GROUP BY\n    1\n)\nSELECT\n  daily_orders.order_date,\n  AVG(daily_orders.num_orders) OVER (\n    ORDER BY\n      daily_orders.order_date ROWS BETWEEN 6 PRECEDING\n      AND CURRENT ROW\n  ) AS seven_day_rolling_avg\nFROM\n  daily_orders\nORDER BY\n  daily_orders.order_date\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.01108125,
+      "llm_tokens": {
+        "prompt_tokens": 2335,
+        "completion_tokens": 155,
+        "total_tokens": 2490
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 8.937626123428345,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 18,
+      "question": "What's the lifetime value of customers by acquisition channel?",
+      "execution_time": 6.906301736831665,
+      "success": true,
+      "sql_output": "SELECT\n    t1.traffic_source,\n    sum(t2.sale_price) AS lifetime_value\n  FROM\n    `bigquery-public-data.thelook_ecommerce.users` AS t1\n    LEFT JOIN `bigquery-public-data.thelook_ecommerce.order_items` AS t2 ON t1.id = t2.user_id\n  GROUP BY 1\nORDER BY\n  lifetime_value DESC\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.users",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.010207500000000001,
+      "llm_tokens": {
+        "prompt_tokens": 2306,
+        "completion_tokens": 104,
+        "total_tokens": 2410
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 6.906271934509277,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 19,
+      "question": "Show me cohort retention rates for the last 6 months",
+      "execution_time": 28.015469074249268,
+      "success": true,
+      "sql_output": "WITH UserCohorts AS (\n  SELECT\n    u.id AS user_id,\n    TIMESTAMP_TRUNC(u.created_at, MONTH) AS cohort_month\n  FROM\n    `thelook_ecommerce.users` AS u\n  WHERE\n    u.created_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 6 MONTH)\n),\nUserActivity AS (\n  SELECT\n    o.user_id,\n    TIMESTAMP_TRUNC(o.created_at, MONTH) AS activity_month\n  FROM\n    `thelook_ecommerce.orders` AS o\n  GROUP BY\n    1,\n    2\n),\nMonthlyRetention AS (\n  SELECT\n    uc.cohort_month,\n    DATE_DIFF(ua.activity_month, uc.cohort_month, MONTH) AS month_number,\n    COUNT(DISTINCT uc.user_id) AS retained_users\n  FROM\n    UserCohorts AS uc\n  JOIN\n    UserActivity AS ua\n    ON uc.user_id = ua.user_id\n  WHERE\n    ua.activity_month >= uc.cohort_month\n  GROUP BY\n    1,\n    2\n),\nCohortSize AS (\n  SELECT\n    cohort_month,\n    COUNT(DISTINCT user_id) AS total_users\n  FROM\n    UserCohorts\n  GROUP BY\n    1\n)\nSELECT\n  mr.cohort_month,\n  cs.total_users AS cohort_size,\n  mr.month_number,\n  mr.retained_users,\n  mr.retained_users / cs.total_users AS retention_rate\nFROM\n  MonthlyRetention AS mr\nJOIN\n  CohortSize AS cs\n  ON mr.cohort_month = cs.cohort_month\nORDER BY\n  mr.cohort_month,\n  mr.month_number\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.users",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.00819,
+      "llm_tokens": {
+        "prompt_tokens": 520,
+        "completion_tokens": 416,
+        "total_tokens": 936
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 28.0154070854187,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 20,
+      "question": "Calculate month-over-month growth rate by product category",
+      "execution_time": 19.7986741065979,
+      "success": true,
+      "sql_output": "WITH monthly_sales_by_category AS (\n  SELECT\n    DATE_TRUNC(CAST(t1.created_at AS DATE), MONTH) AS sales_month,\n    t2.category,\n    SUM(t1.sale_price) AS total_sales\n  FROM\n    `thelook_ecommerce.order_items` AS t1\n    JOIN `thelook_ecommerce.products` AS t2 ON t1.product_id = t2.id\n  GROUP BY\n    1,\n    2\n), monthly_growth AS (\n  SELECT\n    sales_month,\n    category,\n    total_sales,\n    LAG(total_sales, 1) OVER (PARTITION BY category ORDER BY sales_month) AS previous_month_sales\n  FROM\n    monthly_sales_by_category\n)\nSELECT\n  monthly_growth.sales_month,\n  monthly_growth.category,\n  (monthly_growth.total_sales - monthly_growth.previous_month_sales) / monthly_growth.previous_month_sales AS growth_rate\nFROM\n  monthly_growth\nWHERE\n  monthly_growth.previous_month_sales IS NOT NULL\nORDER BY\n  monthly_growth.category,\n  monthly_growth.sales_month\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.0076124999999999995,
+      "llm_tokens": {
+        "prompt_tokens": 882,
+        "completion_tokens": 287,
+        "total_tokens": 1169
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 19.79862117767334,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 21,
+      "question": "Which products are frequently bought together?",
+      "execution_time": 15.46118974685669,
+      "success": true,
+      "sql_output": "SELECT\n    p1.name AS product_1,\n    p2.name AS product_2,\n    COUNT(*) AS pair_count\nFROM\n    `thelook_ecommerce.model.order_items` AS oi1\nJOIN\n    `thelook_ecommerce.model.order_items` AS oi2 ON oi1.order_id = oi2.order_id AND oi1.product_id < oi2.product_id\nJOIN\n    `thelook_ecommerce.model.products` AS p1 ON oi1.product_id = p1.id\nJOIN\n    `thelook_ecommerce.model.products` AS p2 ON oi2.product_id = p2.id\nGROUP BY\n    p1.name,\n    p2.name\nORDER BY\n    pair_count DESC\nLIMIT 10",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.0046612500000000005,
+      "llm_tokens": {
+        "prompt_tokens": 483,
+        "completion_tokens": 190,
+        "total_tokens": 673
+      },
+      "limit_applied": false,
+      "validation_passed": null,
+      "processing_time": 15.461148977279663,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 22,
+      "question": "Show me customers who haven't ordered in 90 days",
+      "execution_time": 13.64463996887207,
+      "success": true,
+      "sql_output": "SELECT\n    t1.id,\n    t1.first_name,\n    t1.last_name,\n    t1.email,\n    MAX(t2.created) AS last_order_date\nFROM\n    `bigquery-public-data.thelook_ecommerce.users` AS t1\nJOIN\n    `bigquery-public-data.thelook_ecommerce.orders` AS t2 ON t1.id = t2.user_id\nGROUP BY\n    1, 2, 3, 4\nHAVING\n    MAX(t2.created) < TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 90 DAY)\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.users",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.01084125,
+      "llm_tokens": {
+        "prompt_tokens": 2307,
+        "completion_tokens": 146,
+        "total_tokens": 2453
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 13.644519090652466,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 23,
+      "question": "What's the average time between first and second purchase?",
+      "execution_time": 15.746944189071655,
+      "success": true,
+      "sql_output": "WITH\n  UserOrders AS (\n    SELECT\n      user_id,\n      created_at,\n      ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY created_at) AS order_sequence_number\n    FROM\n      `thelook_ecommerce.orders`\n  ),\n  FirstSecondOrders AS (\n    SELECT\n      user_id,\n      MIN(CASE WHEN order_sequence_number = 1 THEN created_at END) AS first_order_time,\n      MIN(CASE WHEN order_sequence_number = 2 THEN created_at END) AS second_order_time\n    FROM\n      UserOrders\n    WHERE\n      order_sequence_number IN (1, 2)\n    GROUP BY\n      user_id\n  )\nSELECT\n  AVG(TIMESTAMP_DIFF(second_order_time, first_order_time, DAY)) AS avg_days_between_first_second_purchase\nFROM\n  FirstSecondOrders\nWHERE\n  second_order_time IS NOT NULL\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.00550125,
+      "llm_tokens": {
+        "prompt_tokens": 551,
+        "completion_tokens": 229,
+        "total_tokens": 780
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 15.74675989151001,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 24,
+      "question": "Show me users with more than 5 orders and their total spend",
+      "execution_time": 16.700654983520508,
+      "success": true,
+      "sql_output": "SELECT\n  t1.id,\n  t1.first_name,\n  t1.last_name,\n  count(DISTINCT t2.order_id) AS order_count,\n  sum(t3.sale_price) AS total_spend\nFROM\n  `thelook_ecommerce.users` AS t1\n  INNER JOIN `thelook_ecommerce.orders` AS t2 ON t1.id = t2.user_id\n  INNER JOIN `thelook_ecommerce.order_items` AS t3 ON t2.order_id = t3.order_id\nGROUP BY\n  1,\n  2,\n  3\nHAVING\n  count(DISTINCT t2.order_id) > 5\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.users",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.00441375,
+      "llm_tokens": {
+        "prompt_tokens": 517,
+        "completion_tokens": 165,
+        "total_tokens": 682
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 16.70056915283203,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 25,
+      "question": "Show me our best performing regions",
+      "execution_time": 12.317077875137329,
+      "success": true,
+      "sql_output": "SELECT\n    t1.state,\n    count(t1.id) AS number_of_events\n  FROM\n    `thelook_ecommerce.model.events` AS t1\n  GROUP BY 1\nORDER BY\n  2 DESC\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.events",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.003555,
+      "llm_tokens": {
+        "prompt_tokens": 732,
+        "completion_tokens": 54,
+        "total_tokens": 786
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 12.317052125930786,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 26,
+      "question": "How are we doing with new customers?",
+      "execution_time": 8.057615280151367,
+      "success": true,
+      "sql_output": "SELECT\n    DATE_TRUNC(users.created, MONTH) AS creation_month,\n    COUNT(users.id) AS new_customer_count\n  FROM\n    `bigquery-public-data.thelook_ecommerce.users` AS users\n  GROUP BY\n    1\n  ORDER BY\n    1\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.users",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.0097425,
+      "llm_tokens": {
+        "prompt_tokens": 2302,
+        "completion_tokens": 74,
+        "total_tokens": 2376
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 8.057562112808228,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 27,
+      "question": "What's trending right now?",
+      "execution_time": 9.471987247467041,
+      "success": true,
+      "sql_output": "SELECT\n    t1.name,\n    count(t2.id) AS sales_count\n  FROM\n    `bigquery-public-data.thelook_ecommerce.products` AS t1\n    INNER JOIN `bigquery-public-data.thelook_ecommerce.order_items` AS t2 ON t1.id = t2.product_id\n  WHERE t2.created >= timestamp_sub(current_timestamp(), interval 7 day)\n  GROUP BY 1\nORDER BY\n  sales_count DESC\nLIMIT 10",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.products",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.01051875,
+      "llm_tokens": {
+        "prompt_tokens": 2301,
+        "completion_tokens": 126,
+        "total_tokens": 2427
+      },
+      "limit_applied": false,
+      "validation_passed": null,
+      "processing_time": 9.471934795379639,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 28,
+      "question": "Give me the important metrics",
+      "execution_time": 18.34412407875061,
+      "success": true,
+      "sql_output": "SELECT\n  DATE_TRUNC(DATE(t1.created), MONTH) AS order_month,\n  SUM(t1.sale_price) AS monthly_revenue,\n  COUNT(DISTINCT t1.order_id) AS monthly_orders,\n  COUNT(DISTINCT t1.user_id) AS monthly_active_users\nFROM\n  `bigquery-public-data.thelook_ecommerce.order_items` AS t1\nGROUP BY\n  1\nORDER BY\n  1 DESC\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.01037625,
+      "llm_tokens": {
+        "prompt_tokens": 2299,
+        "completion_tokens": 117,
+        "total_tokens": 2416
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 18.34388780593872,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 29,
+      "question": "Show me problem areas",
+      "execution_time": 12.185812950134277,
+      "success": true,
+      "sql_output": "SELECT\n    t1.id,\n    t1.name,\n    COUNT(t2.id) AS total_orders,\n    COUNT(CASE WHEN t2.status = 'Returned' THEN t2.id END) AS returned_orders,\n    SAFE_DIVIDE(COUNT(CASE WHEN t2.status = 'Returned' THEN t2.id END), COUNT(t2.id)) AS return_rate\n  FROM\n    `bigquery-public-data.thelook_ecommerce.products` AS t1\n    INNER JOIN `bigquery-public-data.thelook_ecommerce.order_items` AS t2 ON t1.id = t2.product_id\n  GROUP BY 1, 2\n  HAVING total_orders > 10\n  ORDER BY\n    return_rate DESC\n  LIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.products",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.0115125,
+      "llm_tokens": {
+        "prompt_tokens": 2298,
+        "completion_tokens": 193,
+        "total_tokens": 2491
+      },
+      "limit_applied": false,
+      "validation_passed": null,
+      "processing_time": 12.185717821121216,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 30,
+      "question": "Show me revenue for products that don't exist",
+      "execution_time": 15.106588125228882,
+      "success": true,
+      "sql_output": "SELECT\n    sum(t1.sale_price) AS revenue\n  FROM\n    `thelook_ecommerce.order_items` AS t1\n    LEFT JOIN `thelook_ecommerce.products` AS t2 ON t1.product_id = t2.id\n  WHERE t2.id IS NULL\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.0029175,
+      "llm_tokens": {
+        "prompt_tokens": 486,
+        "completion_tokens": 73,
+        "total_tokens": 559
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 15.10653281211853,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 31,
+      "question": "Calculate average of customer names",
+      "execution_time": 9.385104179382324,
+      "success": true,
+      "sql_output": "SELECT\n    avg(length(t1.first_name))\n  FROM\n    `bigquery-public-data.thelook_ecommerce.users` AS t1\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.users",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.00928875,
+      "llm_tokens": {
+        "prompt_tokens": 2329,
+        "completion_tokens": 37,
+        "total_tokens": 2366
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 9.385053157806396,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 32,
+      "question": "Give me data from next year",
+      "execution_time": 8.725499153137207,
+      "success": true,
+      "sql_output": "SELECT * FROM `bigquery-public-data.thelook_ecommerce.orders` WHERE EXTRACT(YEAR FROM created) = EXTRACT(YEAR FROM CURRENT_DATE()) + 1\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.order_items",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.009210000000000001,
+      "llm_tokens": {
+        "prompt_tokens": 2300,
+        "completion_tokens": 39,
+        "total_tokens": 2339
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 8.725443124771118,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    },
+    {
+      "question_number": 33,
+      "question": "Show me users who never existed",
+      "execution_time": 6.736165285110474,
+      "success": true,
+      "sql_output": "SELECT\n    t1.id,\n    t1.first_name,\n    t1.last_name,\n    t1.email,\n    t1.age,\n    t1.gender,\n    t1.city,\n    t1.country\n  FROM\n    `thelook_ecommerce.model.users` AS t1\n  WHERE t1.id IS NULL\nLIMIT 100",
+      "error_message": null,
+      "explore_used": "thelook_ecommerce.model.users",
+      "fields_selected": [],
+      "joins_required": [],
+      "llm_used": true,
+      "llm_cost": 0.003105,
+      "llm_tokens": {
+        "prompt_tokens": 480,
+        "completion_tokens": 87,
+        "total_tokens": 567
+      },
+      "limit_applied": true,
+      "validation_passed": null,
+      "processing_time": 6.736109018325806,
+      "available_explores": [
+        "thelook_ecommerce.model.order_items",
+        "thelook_ecommerce.model.users",
+        "thelook_ecommerce.model.inventory_items",
+        "thelook_ecommerce.model.products",
+        "thelook_ecommerce.model.distribution_centers",
+        "thelook_ecommerce.model.events"
+      ],
+      "context_extraction_error": "'ExploreInfo' object has no attribute 'dimensions'"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "table_name": "orders",
+  "row_count": null,
+  "columns": {
+    "order_id": {
+      "table_name": "orders",
+      "column_name": "order_id",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    },
+    "user_id": {
+      "table_name": "orders",
+      "column_name": "user_id",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    },
+    "status": {
+      "table_name": "orders",
+      "column_name": "status",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "gender": {
+      "table_name": "orders",
+      "column_name": "gender",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "created_at": {
+      "table_name": "orders",
+      "column_name": "created_at",
+      "data_type": "TIMESTAMP",
+      "description": null,
+      "field_path": null
+    },
+    "returned_at": {
+      "table_name": "orders",
+      "column_name": "returned_at",
+      "data_type": "TIMESTAMP",
+      "description": null,
+      "field_path": null
+    },
+    "shipped_at": {
+      "table_name": "orders",
+      "column_name": "shipped_at",
+      "data_type": "TIMESTAMP",
+      "description": null,
+      "field_path": null
+    },
+    "delivered_at": {
+      "table_name": "orders",
+      "column_name": "delivered_at",
+      "data_type": "TIMESTAMP",
+      "description": null,
+      "field_path": null
+    },
+    "num_of_item": {
+      "table_name": "orders",
+      "column_name": "num_of_item",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    }
+  }
+}

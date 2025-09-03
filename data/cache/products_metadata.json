@@ -1,0 +1,69 @@
+{
+  "table_name": "products",
+  "row_count": null,
+  "columns": {
+    "id": {
+      "table_name": "products",
+      "column_name": "id",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    },
+    "cost": {
+      "table_name": "products",
+      "column_name": "cost",
+      "data_type": "FLOAT64",
+      "description": null,
+      "field_path": null
+    },
+    "category": {
+      "table_name": "products",
+      "column_name": "category",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "name": {
+      "table_name": "products",
+      "column_name": "name",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "brand": {
+      "table_name": "products",
+      "column_name": "brand",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "retail_price": {
+      "table_name": "products",
+      "column_name": "retail_price",
+      "data_type": "FLOAT64",
+      "description": null,
+      "field_path": null
+    },
+    "department": {
+      "table_name": "products",
+      "column_name": "department",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "sku": {
+      "table_name": "products",
+      "column_name": "sku",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "distribution_center_id": {
+      "table_name": "products",
+      "column_name": "distribution_center_id",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    }
+  }
+}

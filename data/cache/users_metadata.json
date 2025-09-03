@@ -1,0 +1,118 @@
+{
+  "table_name": "users",
+  "row_count": null,
+  "columns": {
+    "id": {
+      "table_name": "users",
+      "column_name": "id",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    },
+    "first_name": {
+      "table_name": "users",
+      "column_name": "first_name",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "last_name": {
+      "table_name": "users",
+      "column_name": "last_name",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "email": {
+      "table_name": "users",
+      "column_name": "email",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "age": {
+      "table_name": "users",
+      "column_name": "age",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    },
+    "gender": {
+      "table_name": "users",
+      "column_name": "gender",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "state": {
+      "table_name": "users",
+      "column_name": "state",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "street_address": {
+      "table_name": "users",
+      "column_name": "street_address",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "postal_code": {
+      "table_name": "users",
+      "column_name": "postal_code",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "city": {
+      "table_name": "users",
+      "column_name": "city",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "country": {
+      "table_name": "users",
+      "column_name": "country",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "latitude": {
+      "table_name": "users",
+      "column_name": "latitude",
+      "data_type": "FLOAT64",
+      "description": null,
+      "field_path": null
+    },
+    "longitude": {
+      "table_name": "users",
+      "column_name": "longitude",
+      "data_type": "FLOAT64",
+      "description": null,
+      "field_path": null
+    },
+    "traffic_source": {
+      "table_name": "users",
+      "column_name": "traffic_source",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "created_at": {
+      "table_name": "users",
+      "column_name": "created_at",
+      "data_type": "TIMESTAMP",
+      "description": null,
+      "field_path": null
+    },
+    "user_geom": {
+      "table_name": "users",
+      "column_name": "user_geom",
+      "data_type": "GEOGRAPHY",
+      "description": null,
+      "field_path": null
+    }
+  }
+}

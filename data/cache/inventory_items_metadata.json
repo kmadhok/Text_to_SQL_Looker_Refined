@@ -1,0 +1,90 @@
+{
+  "table_name": "inventory_items",
+  "row_count": null,
+  "columns": {
+    "id": {
+      "table_name": "inventory_items",
+      "column_name": "id",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    },
+    "product_id": {
+      "table_name": "inventory_items",
+      "column_name": "product_id",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    },
+    "created_at": {
+      "table_name": "inventory_items",
+      "column_name": "created_at",
+      "data_type": "TIMESTAMP",
+      "description": null,
+      "field_path": null
+    },
+    "sold_at": {
+      "table_name": "inventory_items",
+      "column_name": "sold_at",
+      "data_type": "TIMESTAMP",
+      "description": null,
+      "field_path": null
+    },
+    "cost": {
+      "table_name": "inventory_items",
+      "column_name": "cost",
+      "data_type": "FLOAT64",
+      "description": null,
+      "field_path": null
+    },
+    "product_category": {
+      "table_name": "inventory_items",
+      "column_name": "product_category",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "product_name": {
+      "table_name": "inventory_items",
+      "column_name": "product_name",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "product_brand": {
+      "table_name": "inventory_items",
+      "column_name": "product_brand",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "product_retail_price": {
+      "table_name": "inventory_items",
+      "column_name": "product_retail_price",
+      "data_type": "FLOAT64",
+      "description": null,
+      "field_path": null
+    },
+    "product_department": {
+      "table_name": "inventory_items",
+      "column_name": "product_department",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "product_sku": {
+      "table_name": "inventory_items",
+      "column_name": "product_sku",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "product_distribution_center_id": {
+      "table_name": "inventory_items",
+      "column_name": "product_distribution_center_id",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    }
+  }
+}

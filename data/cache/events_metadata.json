@@ -1,0 +1,97 @@
+{
+  "table_name": "events",
+  "row_count": null,
+  "columns": {
+    "id": {
+      "table_name": "events",
+      "column_name": "id",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    },
+    "user_id": {
+      "table_name": "events",
+      "column_name": "user_id",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    },
+    "sequence_number": {
+      "table_name": "events",
+      "column_name": "sequence_number",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    },
+    "session_id": {
+      "table_name": "events",
+      "column_name": "session_id",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "created_at": {
+      "table_name": "events",
+      "column_name": "created_at",
+      "data_type": "TIMESTAMP",
+      "description": null,
+      "field_path": null
+    },
+    "ip_address": {
+      "table_name": "events",
+      "column_name": "ip_address",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "city": {
+      "table_name": "events",
+      "column_name": "city",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "state": {
+      "table_name": "events",
+      "column_name": "state",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "postal_code": {
+      "table_name": "events",
+      "column_name": "postal_code",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "browser": {
+      "table_name": "events",
+      "column_name": "browser",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "traffic_source": {
+      "table_name": "events",
+      "column_name": "traffic_source",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "uri": {
+      "table_name": "events",
+      "column_name": "uri",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "event_type": {
+      "table_name": "events",
+      "column_name": "event_type",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    }
+  }
+}

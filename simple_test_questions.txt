@@ -1,0 +1,50 @@
+# Simple Test Questions for LookML Text-to-SQL
+
+# Basic Aggregations
+Show me total revenue
+Count all users
+What's the average order value?
+How many products do we have?
+
+# Time-based queries
+Show me revenue last month
+Count orders this year
+What's our daily revenue trend?
+How many users signed up last week?
+
+# Grouping and segmentation
+Show me revenue by product category
+Count users by state
+What's average order value by month?
+Show me top 10 customers by revenue
+
+# Comparisons and calculations
+Show me month over month revenue growth
+Compare this year's sales to last year
+What's our conversion rate from users to orders?
+Show me revenue per user by cohort
+
+# Complex aggregations
+Show me 7-day rolling average of daily orders
+What's the lifetime value of customers by acquisition channel?
+Show me cohort retention rates for the last 6 months
+Calculate month-over-month growth rate by product category
+
+# Multi-table relationships
+Which products are frequently bought together?
+Show me customers who haven't ordered in 90 days
+What's the average time between first and second purchase?
+Show me users with more than 5 orders and their total spend
+
+# Ambiguous/challenging queries
+Show me our best performing regions
+How are we doing with new customers?
+What's trending right now?
+Give me the important metrics
+Show me problem areas
+
+# Edge cases
+Show me revenue for products that don't exist
+Calculate average of customer names
+Give me data from next year
+Show me users who never existed

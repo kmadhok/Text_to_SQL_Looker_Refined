@@ -1,0 +1,83 @@
+{
+  "table_name": "order_items",
+  "row_count": null,
+  "columns": {
+    "id": {
+      "table_name": "order_items",
+      "column_name": "id",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    },
+    "order_id": {
+      "table_name": "order_items",
+      "column_name": "order_id",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    },
+    "user_id": {
+      "table_name": "order_items",
+      "column_name": "user_id",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    },
+    "product_id": {
+      "table_name": "order_items",
+      "column_name": "product_id",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    },
+    "inventory_item_id": {
+      "table_name": "order_items",
+      "column_name": "inventory_item_id",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    },
+    "status": {
+      "table_name": "order_items",
+      "column_name": "status",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "created_at": {
+      "table_name": "order_items",
+      "column_name": "created_at",
+      "data_type": "TIMESTAMP",
+      "description": null,
+      "field_path": null
+    },
+    "shipped_at": {
+      "table_name": "order_items",
+      "column_name": "shipped_at",
+      "data_type": "TIMESTAMP",
+      "description": null,
+      "field_path": null
+    },
+    "delivered_at": {
+      "table_name": "order_items",
+      "column_name": "delivered_at",
+      "data_type": "TIMESTAMP",
+      "description": null,
+      "field_path": null
+    },
+    "returned_at": {
+      "table_name": "order_items",
+      "column_name": "returned_at",
+      "data_type": "TIMESTAMP",
+      "description": null,
+      "field_path": null
+    },
+    "sale_price": {
+      "table_name": "order_items",
+      "column_name": "sale_price",
+      "data_type": "FLOAT64",
+      "description": null,
+      "field_path": null
+    }
+  }
+}

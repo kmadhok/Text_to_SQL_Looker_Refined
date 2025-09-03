@@ -1,0 +1,21 @@
+bigquery:
+  project_id: null  # Will be set from env var
+  dataset: "bigquery-public-data.thelook_ecommerce"
+  location: "US"
+
+lookml:
+  repo_path: "./data/lookml"
+
+cache:
+  enabled: true
+  directory: "./data/cache"
+  metadata_ttl: 3600  # 1 hour in seconds
+
+generator:
+  default_limit: 100
+  enable_dry_run: false
+  max_joins: 10
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

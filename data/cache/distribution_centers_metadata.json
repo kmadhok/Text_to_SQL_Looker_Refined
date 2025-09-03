@@ -1,0 +1,41 @@
+{
+  "table_name": "distribution_centers",
+  "row_count": null,
+  "columns": {
+    "id": {
+      "table_name": "distribution_centers",
+      "column_name": "id",
+      "data_type": "INT64",
+      "description": null,
+      "field_path": null
+    },
+    "name": {
+      "table_name": "distribution_centers",
+      "column_name": "name",
+      "data_type": "STRING",
+      "description": null,
+      "field_path": null
+    },
+    "latitude": {
+      "table_name": "distribution_centers",
+      "column_name": "latitude",
+      "data_type": "FLOAT64",
+      "description": null,
+      "field_path": null
+    },
+    "longitude": {
+      "table_name": "distribution_centers",
+      "column_name": "longitude",
+      "data_type": "FLOAT64",
+      "description": null,
+      "field_path": null
+    },
+    "distribution_center_geom": {
+      "table_name": "distribution_centers",
+      "column_name": "distribution_center_geom",
+      "data_type": "GEOGRAPHY",
+      "description": null,
+      "field_path": null
+    }
+  }
+}
