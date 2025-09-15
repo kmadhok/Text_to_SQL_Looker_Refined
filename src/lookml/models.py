@@ -76,6 +76,7 @@ class LookMLProject(BaseModel):
     """Represents the entire LookML project."""
     models: Dict[str, LookMLModel] = Field(default_factory=dict)
     views: Dict[str, LookMLView] = Field(default_factory=dict)  # Standalone views
+    repo_path: Optional[str] = None  # Path to the repository root
     
     def get_all_views(self) -> Dict[str, LookMLView]:
         """Get all views from models and standalone views."""

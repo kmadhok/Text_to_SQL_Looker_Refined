@@ -4,7 +4,8 @@ import logging
 import time
 from typing import Dict, List, Optional, Set, Tuple, Any
 
-from .schema_intelligence import SchemaIntelligenceService, SchemaIntelligence, FieldSemanticType, TableBusinessType
+from .schema_intelligence import SchemaIntelligenceService
+from .schema_models import SchemaIntelligence, FieldSemanticType, TableBusinessType
 from ..grounding.index import GroundingIndex
 
 logger = logging.getLogger(__name__)
@@ -21,7 +22,6 @@ class EnhancedSchemaContextGenerator:
         """
         self.intelligence_service = schema_intelligence_service
         self.logger = logging.getLogger(__name__)
-        self._schema_intelligence_cache: Optional[SchemaIntelligence] = None
     
     def generate_intelligent_context(
         self, 
@@ -45,11 +45,8 @@ class EnhancedSchemaContextGenerator:
         
         self.logger.info(f"Generating intelligent context for query: {full_query}")
         
-        # Get or generate schema intelligence
-        if not self._schema_intelligence_cache:
-            self._schema_intelligence_cache = self.intelligence_service.analyze_schema(grounding_index)
-        
-        schema_intelligence = self._schema_intelligence_cache
+        # Get schema intelligence (using persistent storage)
+        schema_intelligence = self.intelligence_service.analyze_schema(grounding_index)
         
         # Determine query intent and select relevant components
         query_intent = self._analyze_query_intent(full_query, query_terms, schema_intelligence)

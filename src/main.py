@@ -53,6 +53,26 @@ class TextToSQLEngine:
         self.validator = None
         
         self.initialized = False
+
+    def warmup(self) -> None:
+        """Precompute caches and schema intelligence without executing a query.
+
+        This does not alter accuracy; it only reduces first‑query latency by:
+        - Parsing LookML and building the GroundingIndex
+        - Loading BigQuery metadata (with on-disk caching if enabled)
+        - Building/persisting schema intelligence for enhanced LLM context
+        """
+        self.initialize()
+        try:
+            # If using the LLM planner with enhanced context, precompute intelligence
+            if (
+                getattr(self.config.generator, 'use_llm_planner', False)
+                and hasattr(self, 'query_planner')
+                and hasattr(self.query_planner, 'schema_intelligence_service')
+            ):
+                self.query_planner.schema_intelligence_service.analyze_schema(self.grounding_index)
+        except Exception as e:
+            logger.warning(f"Warmup schema intelligence step failed (will fallback at runtime): {e}")
     
     def initialize(self) -> None:
         """Initialize the engine by loading LookML and building index."""
@@ -104,7 +124,8 @@ class TextToSQLEngine:
                 validator=validator,
                 max_retries=self.config.llm.max_retries,
                 conversation_log_dir=conversation_log_dir,
-                use_enhanced_context=True  # Enable enhanced semantic context
+                use_enhanced_context=True,  # Enable enhanced semantic context
+                schema_intelligence_storage_dir="data/schema_intelligence"
             )
         else:
             logger.info("Using rule-based query planner")
@@ -199,7 +220,8 @@ class TextToSQLEngine:
 @click.option('--interactive', '-i', is_flag=True, help='Run in interactive mode')
 @click.option('--validate', is_flag=True, help='Enable SQL validation via dry-run')
 @click.option('--verbose', '-v', is_flag=True, help='Enable verbose logging')
-def main(config: Optional[str], query: Optional[str], interactive: bool, validate: bool, verbose: bool):
+@click.option('--warmup-only', is_flag=True, help='Precompute caches and exit')
+def main(config: Optional[str], query: Optional[str], interactive: bool, validate: bool, verbose: bool, warmup_only: bool):
     """LookML Text-to-SQL converter."""
     
     # Set up logging level
@@ -208,6 +230,12 @@ def main(config: Optional[str], query: Optional[str], interactive: bool, validat
     
     # Initialize engine
     engine = TextToSQLEngine(config)
+
+    # Optional warmup-only mode
+    if warmup_only:
+        engine.warmup()
+        click.echo("Warmup complete.")
+        return
     
     if validate:
         engine.config.generator.enable_dry_run = True

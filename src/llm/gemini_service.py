@@ -1,4 +1,10 @@
-"""Gemini 2.5 Pro service for SQL generation with comprehensive logging."""
+"""Gemini 2.5 Pro service for SQL generation with comprehensive logging.
+
+Supports two backends:
+- API key mode using `google.generativeai` (default, requires GEMINI_API_KEY)
+- Vertex AI mode using `google-genai` when GOOGLE_GENAI_USE_VERTEXAI=true with
+  Google Cloud auth (GOOGLE_CLOUD_PROJECT, GOOGLE_CLOUD_LOCATION, ADC)
+"""
 
 import logging
 import os
@@ -11,6 +17,14 @@ from pathlib import Path
 import google.generativeai as genai
 from google.generativeai import GenerationConfig
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
+
+# Optional Vertex GenAI SDK (google-genai)
+try:
+    from google import genai as vertex_genai  # type: ignore
+    _VERTEX_AVAILABLE = True
+except Exception:  # pragma: no cover - optional dependency
+    vertex_genai = None  # type: ignore
+    _VERTEX_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -59,33 +73,44 @@ class GeminiService:
             debug_mode: Enable detailed logging
             conversation_log_dir: Directory to save conversation logs
         """
-        self.api_key = api_key or os.getenv("GEMINI_API_KEY")
-        if not self.api_key:
-            raise ValueError("GEMINI_API_KEY not found in environment variables")
-        
         self.model_name = model_name
         self.temperature = temperature
         self.debug_mode = debug_mode
         
-        # Configure Gemini
-        genai.configure(api_key=self.api_key)
+        # Select backend: Vertex (google-genai) or API key (google.generativeai)
+        self.vertex_mode = str(os.getenv("GOOGLE_GENAI_USE_VERTEXAI", "")).lower() in {"1", "true", "yes"}
+        self.vertex_client = None
         
-        # Initialize model
-        self.model = genai.GenerativeModel(
-            model_name=self.model_name,
-            generation_config=GenerationConfig(
-                temperature=temperature,
-                top_p=0.95,
-                top_k=40,
-                max_output_tokens=4096,
-            ),
-            safety_settings={
-                HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
-                HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
-                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
-                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
-            }
-        )
+        if self.vertex_mode:
+            if not _VERTEX_AVAILABLE:
+                raise RuntimeError("google-genai package not installed. Please `pip install google-genai`.")
+            project = os.getenv("GOOGLE_CLOUD_PROJECT")
+            location = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
+            if not project:
+                raise ValueError("GOOGLE_CLOUD_PROJECT must be set for Vertex mode")
+            # Use ADC / service account if provided via env
+            self.vertex_client = vertex_genai.Client(vertexai=True, project=project, location=location)
+        else:
+            # API-key mode
+            self.api_key = api_key or os.getenv("GEMINI_API_KEY")
+            if not self.api_key:
+                raise ValueError("GEMINI_API_KEY not found in environment variables")
+            genai.configure(api_key=self.api_key)
+            self.model = genai.GenerativeModel(
+                model_name=self.model_name,
+                generation_config=GenerationConfig(
+                    temperature=temperature,
+                    top_p=0.95,
+                    top_k=40,
+                    max_output_tokens=4096,
+                ),
+                safety_settings={
+                    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+                    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+                    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+                    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+                }
+            )
         
         # Set up conversation logging
         self.conversation_log_dir = None
@@ -93,7 +118,8 @@ class GeminiService:
             self.conversation_log_dir = Path(conversation_log_dir)
             self.conversation_log_dir.mkdir(parents=True, exist_ok=True)
         
-        logger.info(f"Initialized Gemini service with model: {model_name}, temperature: {temperature}")
+        mode = "Vertex" if self.vertex_mode else "API-Key"
+        logger.info(f"Initialized Gemini service ({mode}) with model: {model_name}, temperature: {temperature}")
     
     def generate_content(
         self,
@@ -117,41 +143,46 @@ class GeminiService:
             # Use provided temperature or instance default
             temp = temperature if temperature is not None else self.temperature
             max_tokens = max_output_tokens or 8192
-            
             logger.info(f"Generating content with Gemini - Prompt size: {len(prompt)} chars")
-            
-            # Configure generation
-            config = GenerationConfig(
-                temperature=temp,
-                top_p=0.8,
-                top_k=40,
-                max_output_tokens=max_tokens,
-                stop_sequences=[]
-            )
-            
-            # Safety settings
-            safety_settings = {
-                HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-                HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-            }
-            
-            # Generate response
-            response = self.model.generate_content(
-                prompt,
-                generation_config=config,
-                safety_settings=safety_settings
-            )
+
+            if self.vertex_mode:
+                response = self.vertex_client.models.generate_content(
+                    model=self.model_name,
+                    contents=prompt,
+                )
+                response_text = getattr(response, "text", "")
+                usage = getattr(response, "usage_metadata", None)
+                prompt_tokens = getattr(usage, "prompt_token_count", 0) if usage else 0
+                response_tokens = getattr(usage, "candidates_token_count", 0) if usage else 0
+            else:
+                # Configure generation for API-key mode
+                config = GenerationConfig(
+                    temperature=temp,
+                    top_p=0.8,
+                    top_k=40,
+                    max_output_tokens=max_tokens,
+                    stop_sequences=[],
+                )
+                safety_settings = {
+                    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                }
+                response = self.model.generate_content(
+                    prompt,
+                    generation_config=config,
+                    safety_settings=safety_settings,
+                )
+                response_text = response.text if response.text else ""
+                usage = getattr(response, "usage_metadata", None)
+                prompt_tokens = getattr(usage, "prompt_token_count", 0) if usage else 0
+                response_tokens = getattr(usage, "candidates_token_count", 0) if usage else 0
             
             processing_time = time.time() - start_time
             
             # Extract content
-            response_content = response.text if response.text else ""
-            
-            # Extract token usage
-            prompt_tokens = response.usage_metadata.prompt_token_count if response.usage_metadata else 0
-            response_tokens = response.usage_metadata.candidates_token_count if response.usage_metadata else 0
+            response_content = response_text if response_text else ""
             
             token_usage = {
                 "prompt_tokens": prompt_tokens,
@@ -235,25 +266,33 @@ class GeminiService:
         try:
             # Generate response
             full_prompt = f"{system_prompt}\n\n{user_prompt}"
-            
+
             logger.info(f"Sending request to Gemini - Context size: {context.total_context_size} chars")
-            
-            response = self.model.generate_content(full_prompt)
-            
+
+            if self.vertex_mode:
+                response = self.vertex_client.models.generate_content(
+                    model=self.model_name,
+                    contents=full_prompt,
+                )
+                response_text = getattr(response, "text", "")
+                usage = getattr(response, 'usage_metadata', None)
+                prompt_tokens = getattr(usage, 'prompt_token_count', 0) if usage else 0
+                response_tokens = getattr(usage, 'candidates_token_count', 0) if usage else 0
+            else:
+                response = self.model.generate_content(full_prompt)
+                response_text = response.text if response.text else ""
+                usage = getattr(response, 'usage_metadata', None)
+                prompt_tokens = getattr(usage, 'prompt_token_count', 0) if usage else 0
+                response_tokens = getattr(usage, 'candidates_token_count', 0) if usage else 0
+
             processing_time = time.time() - start_time
-            
+
             # Extract response content
-            response_content = response.text if response.text else ""
-            
+            response_content = response_text if response_text else ""
+
             # Parse token usage if available
             token_usage = {}
-            prompt_tokens = 0
-            response_tokens = 0
-            
-            if hasattr(response, 'usage_metadata') and response.usage_metadata:
-                usage = response.usage_metadata
-                prompt_tokens = getattr(usage, 'prompt_token_count', 0)
-                response_tokens = getattr(usage, 'candidates_token_count', 0)
+            if usage:
                 token_usage = {
                     'prompt_tokens': prompt_tokens,
                     'completion_tokens': response_tokens,

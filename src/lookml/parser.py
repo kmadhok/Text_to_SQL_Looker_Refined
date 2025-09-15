@@ -50,6 +50,10 @@ class LookMLParser:
                 logger.error(f"Error parsing view file {view_file}: {e}")
         
         logger.info(f"Parsed {len(project.models)} models and {len(project.views)} views")
+        
+        # Store repo path for schema fingerprinting
+        project.repo_path = str(self.repo_path)
+        
         return project
     
     def _parse_model_file(self, file_path: Path) -> LookMLModel:

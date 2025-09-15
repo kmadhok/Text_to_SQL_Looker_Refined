@@ -26,7 +26,8 @@ class LLMQueryPlanner:
         validator: Optional[SQLValidator] = None,
         max_retries: int = 3,
         conversation_log_dir: Optional[str] = None,
-        use_enhanced_context: bool = True
+        use_enhanced_context: bool = True,
+        schema_intelligence_storage_dir: Optional[str] = None
     ):
         """Initialize LLM query planner.
         
@@ -37,6 +38,7 @@ class LLMQueryPlanner:
             max_retries: Maximum retry attempts for self-correction
             conversation_log_dir: Directory to save conversation logs
             use_enhanced_context: Whether to use enhanced semantic context generation
+            schema_intelligence_storage_dir: Directory for schema intelligence persistent storage
         """
         self.grounding_index = grounding_index
         self.validator = validator
@@ -56,7 +58,10 @@ class LLMQueryPlanner:
         self.schema_generator = SchemaContextGenerator(grounding_index)  # Fallback
         
         if use_enhanced_context:
-            self.schema_intelligence_service = SchemaIntelligenceService(self.gemini_service)
+            self.schema_intelligence_service = SchemaIntelligenceService(
+                self.gemini_service, 
+                storage_dir=schema_intelligence_storage_dir
+            )
             self.enhanced_context_generator = EnhancedSchemaContextGenerator(self.schema_intelligence_service)
             logger.info("Initialized LLM query planner with enhanced semantic context")
         else:

@@ -9,80 +9,31 @@ from dataclasses import dataclass
 from enum import Enum
 
 from .gemini_service import GeminiService
+from .schema_models import (
+    SchemaIntelligence, EnrichedFieldInfo, TableSemantics, 
+    FieldSemanticType, TableBusinessType
+)
+from .schema_intelligence_storage import SchemaIntelligencePersistentStorage
 from ..grounding.index import GroundingIndex, FieldInfo, ExploreInfo
 from ..bigquery.metadata_loader import TableMetadata, ColumnMetadata
 
 logger = logging.getLogger(__name__)
 
 
-class FieldSemanticType(Enum):
-    """Semantic types for database fields."""
-    TRANSACTIONAL_VALUE = "transactional_value"  # Actual money exchanged
-    REFERENCE_PRICE = "reference_price"  # Listed/catalog prices
-    QUANTITY = "quantity"  # Counts, amounts, volumes
-    IDENTIFIER = "identifier"  # Keys, IDs, references
-    TEMPORAL = "temporal"  # Dates, timestamps
-    CATEGORICAL = "categorical"  # Classifications, statuses, types
-    DESCRIPTIVE = "descriptive"  # Names, descriptions, text
-    CALCULATED = "calculated"  # Derived measures
-
-
-class TableBusinessType(Enum):
-    """Business types for database tables."""
-    FACT = "fact"  # Transactional data
-    DIMENSION = "dimension"  # Reference/lookup data
-    BRIDGE = "bridge"  # Many-to-many relationships
-    AGGREGATE = "aggregate"  # Pre-calculated summaries
-
-
-@dataclass
-class EnrichedFieldInfo:
-    """Field information enriched with semantic analysis."""
-    field_info: FieldInfo
-    semantic_type: FieldSemanticType
-    business_purpose: str
-    confidence_score: float
-    usage_recommendations: List[str]
-    common_mistakes: List[str]
-    related_fields: List[str]
-
-
-@dataclass
-class TableSemantics:
-    """Semantic analysis of a table's business purpose."""
-    table_name: str
-    business_type: TableBusinessType
-    primary_purpose: str
-    key_concepts: List[str]
-    best_for_queries: List[str]
-    avoid_for_queries: List[str]
-    performance_notes: List[str]
-
-
-@dataclass
-class SchemaIntelligence:
-    """Complete semantic understanding of the database schema."""
-    enriched_fields: Dict[str, EnrichedFieldInfo]  # qualified_name -> enriched info
-    table_semantics: Dict[str, TableSemantics]  # table_name -> semantics
-    business_concept_map: Dict[str, List[str]]  # concept -> relevant field names
-    query_patterns: Dict[str, Dict[str, Any]]  # query_type -> guidance
-    relationship_insights: Dict[str, List[str]]  # table -> related tables with context
-
-
 class SchemaIntelligenceService:
     """Service for analyzing schema semantics using Gemini 2.5 Pro."""
     
-    def __init__(self, gemini_service: GeminiService, cache_ttl: int = 3600):
+    def __init__(self, gemini_service: GeminiService, storage_dir: Optional[str] = None):
         """Initialize schema intelligence service.
         
         Args:
             gemini_service: Gemini service for LLM analysis
-            cache_ttl: Cache time-to-live in seconds
+            storage_dir: Directory for persistent storage (default: data/schema_intelligence)
         """
         self.gemini_service = gemini_service
-        self.cache_ttl = cache_ttl
-        self._cache: Dict[str, Any] = {}
-        self._cache_timestamps: Dict[str, float] = {}
+        self.persistent_storage = SchemaIntelligencePersistentStorage(
+            storage_dir or "data/schema_intelligence"
+        )
         self.logger = logging.getLogger(__name__)
     
     def analyze_schema(self, grounding_index: GroundingIndex) -> SchemaIntelligence:
@@ -94,14 +45,18 @@ class SchemaIntelligenceService:
         Returns:
             Complete schema intelligence with semantic understanding
         """
-        cache_key = "full_schema_analysis"
+        # Generate current schema fingerprint
+        current_fingerprint = self.persistent_storage.generate_schema_fingerprint(grounding_index)
         
-        # Check cache
-        cached_result = self._get_cached_result(cache_key)
-        if cached_result:
-            self.logger.info("Using cached schema intelligence")
-            return cached_result
+        # Check if we can use existing analysis
+        if not self.persistent_storage.has_schema_changed(current_fingerprint):
+            # Try to load existing analysis
+            cached_intelligence = self.persistent_storage.load_schema_intelligence()
+            if cached_intelligence:
+                self.logger.info("Using saved schema intelligence (no schema changes detected)")
+                return cached_intelligence
         
+        # Schema has changed or no saved analysis - perform full analysis
         self.logger.info("Starting comprehensive schema semantic analysis")
         start_time = time.time()
         
@@ -128,8 +83,12 @@ class SchemaIntelligenceService:
             relationship_insights=relationship_insights
         )
         
-        # Cache the result
-        self._cache_result(cache_key, schema_intelligence)
+        # Save the analysis and fingerprint
+        try:
+            self.persistent_storage.save_schema_intelligence(schema_intelligence, current_fingerprint)
+            self.logger.info("Schema intelligence saved to persistent storage")
+        except Exception as e:
+            self.logger.warning(f"Failed to save schema intelligence: {e}")
         
         elapsed = time.time() - start_time
         self.logger.info(
@@ -140,8 +99,8 @@ class SchemaIntelligenceService:
         return schema_intelligence
     
     def _analyze_field_semantics(self, grounding_index: GroundingIndex) -> Dict[str, EnrichedFieldInfo]:
-        """Analyze semantic meaning of each field using parallel processing."""
-        self.logger.info("Analyzing field semantics with Gemini (parallel processing)")
+        """Analyze semantic meaning of each field using intelligent batching and parallel processing."""
+        self.logger.info("Analyzing field semantics with Gemini (intelligent batching + parallel processing)")
         
         enriched_fields = {}
         
@@ -154,27 +113,201 @@ class SchemaIntelligenceService:
                     fields_by_table[table] = []
                 fields_by_table[table].append(field_info)
         
-        # Process tables in parallel using ThreadPoolExecutor
+        # Create intelligent batches of similar tables
+        table_batches = self._create_intelligent_table_batches(fields_by_table)
+        
+        self.logger.info(f"Created {len(table_batches)} intelligent batches from {len(fields_by_table)} tables")
+        
+        # Process batches in parallel using ThreadPoolExecutor
         with ThreadPoolExecutor(max_workers=4) as executor:
-            # Submit all table analysis tasks
-            future_to_table = {
-                executor.submit(self._analyze_table_fields, table_name, fields): table_name
-                for table_name, fields in fields_by_table.items()
+            # Submit all batch analysis tasks
+            future_to_batch = {
+                executor.submit(self._analyze_table_batch, batch): f"batch_{i}"
+                for i, batch in enumerate(table_batches)
             }
             
             # Collect results as they complete
-            for future in as_completed(future_to_table):
-                table_name = future_to_table[future]
+            for future in as_completed(future_to_batch):
+                batch_name = future_to_batch[future]
                 try:
-                    table_analysis = future.result()
-                    enriched_fields.update(table_analysis)
-                    self.logger.debug(f"Completed field analysis for table: {table_name}")
+                    batch_analysis = future.result()
+                    enriched_fields.update(batch_analysis)
+                    self.logger.debug(f"Completed field analysis for {batch_name}")
                 except Exception as e:
-                    self.logger.error(f"Field analysis failed for table {table_name}: {e}")
-                    # Continue processing other tables
+                    self.logger.error(f"Field analysis failed for {batch_name}: {e}")
+                    # Continue processing other batches
         
-        self.logger.info(f"Completed parallel field analysis for {len(fields_by_table)} tables")
+        self.logger.info(f"Completed intelligent batched field analysis - {len(enriched_fields)} fields analyzed")
         return enriched_fields
+    
+    def _create_intelligent_table_batches(self, fields_by_table: Dict[str, List[FieldInfo]]) -> List[Dict[str, List[FieldInfo]]]:
+        """Create intelligent batches of similar tables to reduce API calls."""
+        
+        # Classify tables by business type for intelligent batching
+        fact_tables = {}
+        dimension_tables = {}
+        bridge_tables = {}
+        large_tables = {}
+        
+        for table_name, fields in fields_by_table.items():
+            # Quick classification based on field characteristics
+            table_type = self._classify_table_by_fields(table_name, fields)
+            field_count = len(fields)
+            
+            # Large tables (>15 fields) get their own batch for better focus
+            if field_count > 15:
+                large_tables[table_name] = fields
+            elif table_type == "fact":
+                fact_tables[table_name] = fields
+            elif table_type == "bridge":
+                bridge_tables[table_name] = fields
+            else:
+                dimension_tables[table_name] = fields
+        
+        batches = []
+        
+        # Large tables: one per batch (they need focused attention)
+        for table_name, fields in large_tables.items():
+            batches.append({table_name: fields})
+            self.logger.debug(f"Large table batch: {table_name} ({len(fields)} fields)")
+        
+        # Fact tables: batch up to 2 together (they're usually complex)
+        fact_batch = {}
+        for table_name, fields in fact_tables.items():
+            fact_batch[table_name] = fields
+            if len(fact_batch) >= 2:  # Max 2 fact tables per batch
+                batches.append(fact_batch)
+                self.logger.debug(f"Fact table batch: {list(fact_batch.keys())}")
+                fact_batch = {}
+        if fact_batch:  # Add remaining fact tables
+            batches.append(fact_batch)
+            self.logger.debug(f"Final fact table batch: {list(fact_batch.keys())}")
+        
+        # Dimension tables: batch up to 3 together (they're usually simpler)
+        dimension_batch = {}
+        for table_name, fields in dimension_tables.items():
+            dimension_batch[table_name] = fields
+            if len(dimension_batch) >= 3:  # Max 3 dimension tables per batch
+                batches.append(dimension_batch)
+                self.logger.debug(f"Dimension table batch: {list(dimension_batch.keys())}")
+                dimension_batch = {}
+        if dimension_batch:  # Add remaining dimension tables
+            batches.append(dimension_batch)
+            self.logger.debug(f"Final dimension table batch: {list(dimension_batch.keys())}")
+        
+        # Bridge tables: batch up to 2 together
+        bridge_batch = {}
+        for table_name, fields in bridge_tables.items():
+            bridge_batch[table_name] = fields
+            if len(bridge_batch) >= 2:  # Max 2 bridge tables per batch
+                batches.append(bridge_batch)
+                self.logger.debug(f"Bridge table batch: {list(bridge_batch.keys())}")
+                bridge_batch = {}
+        if bridge_batch:  # Add remaining bridge tables
+            batches.append(bridge_batch)
+            self.logger.debug(f"Final bridge table batch: {list(bridge_batch.keys())}")
+        
+        return batches
+    
+    def _classify_table_by_fields(self, table_name: str, fields: List[FieldInfo]) -> str:
+        """Quick classification of table type based on field characteristics."""
+        
+        transactional_indicators = 0
+        reference_indicators = 0
+        bridge_indicators = 0
+        
+        for field in fields:
+            field_name_lower = field.name.lower()
+            
+            # Look for transaction/fact indicators
+            if any(term in field_name_lower for term in ['price', 'amount', 'cost', 'revenue', 'sale', 'quantity', 'total']):
+                transactional_indicators += 1
+            
+            # Look for reference/dimension indicators  
+            elif any(term in field_name_lower for term in ['name', 'description', 'category', 'type', 'status', 'brand']):
+                reference_indicators += 1
+            
+            # Look for bridge indicators (multiple foreign keys)
+            elif field_name_lower.endswith('_id') and field_name_lower != 'id':
+                bridge_indicators += 1
+        
+        # Classification logic
+        if transactional_indicators >= 2:
+            return "fact"
+        elif bridge_indicators >= 3:  # Multiple foreign keys suggest bridge table
+            return "bridge"
+        elif reference_indicators >= 2 or 'users' in table_name.lower() or 'products' in table_name.lower():
+            return "dimension"
+        else:
+            return "dimension"  # Default to dimension
+    
+    def _analyze_table_batch(self, table_batch: Dict[str, List[FieldInfo]]) -> Dict[str, EnrichedFieldInfo]:
+        """Analyze a batch of related tables together for efficiency."""
+        
+        batch_table_names = list(table_batch.keys())
+        self.logger.debug(f"Analyzing table batch: {batch_table_names}")
+        
+        if len(table_batch) == 1:
+            # Single table in batch - use original method
+            table_name = batch_table_names[0]
+            fields = table_batch[table_name]
+            return self._analyze_table_fields(table_name, fields)
+        else:
+            # Multiple tables in batch - use new batch method
+            return self._analyze_multiple_tables_batch(table_batch)
+    
+    def _analyze_multiple_tables_batch(self, table_batch: Dict[str, List[FieldInfo]]) -> Dict[str, EnrichedFieldInfo]:
+        """Analyze multiple related tables in a single API call."""
+        
+        # Prepare batch metadata for analysis
+        batch_metadata = {}
+        all_fields = []
+        
+        for table_name, fields in table_batch.items():
+            table_fields_metadata = []
+            for field in fields:
+                field_metadata = {
+                    "name": field.name,
+                    "qualified_name": field.qualified_name,
+                    "type": field.field_type,
+                    "lookml_type": field.lookml_type,
+                    "sql_expression": field.sql_expression,
+                    "lookml_description": field.lookml_description,
+                    "bigquery_description": field.bigquery_description,
+                    "bigquery_data_type": field.bigquery_data_type
+                }
+                table_fields_metadata.append(field_metadata)
+                all_fields.append(field)
+            
+            batch_metadata[table_name] = table_fields_metadata
+        
+        # Analyze batch with Gemini
+        analysis_prompt = self._build_batch_field_analysis_prompt(batch_metadata)
+        
+        try:
+            response = self.gemini_service.generate_content(
+                prompt=analysis_prompt,
+                temperature=0.1  # Lower temperature for consistent analysis
+            )
+            
+            # Parse Gemini's response for the batch
+            batch_analysis = self._parse_batch_field_analysis_response(response.content, all_fields)
+            return batch_analysis
+            
+        except Exception as e:
+            self.logger.error(f"Error analyzing table batch {list(table_batch.keys())}: {e}")
+            # Fallback: analyze each table individually
+            fallback_results = {}
+            for table_name, fields in table_batch.items():
+                try:
+                    table_results = self._analyze_table_fields(table_name, fields)
+                    fallback_results.update(table_results)
+                except Exception as table_error:
+                    self.logger.error(f"Fallback analysis failed for {table_name}: {table_error}")
+                    # Create basic fallback for this table
+                    fallback_results.update(self._create_fallback_field_analysis(fields))
+            
+            return fallback_results
     
     def _analyze_table_fields(self, table_name: str, fields: List[FieldInfo]) -> Dict[str, EnrichedFieldInfo]:
         """Analyze all fields in a table together for context."""
@@ -258,6 +391,65 @@ CRITICAL: For e-commerce/transaction data:
 - Revenue calculations should use TRANSACTIONAL_VALUE fields, never REFERENCE_PRICE
 """
     
+    def _build_batch_field_analysis_prompt(self, batch_metadata: Dict[str, List[Dict]]) -> str:
+        """Build prompt for analyzing multiple tables together in a batch."""
+        
+        tables_info = []
+        for table_name, field_metadata in batch_metadata.items():
+            table_info = f"TABLE: {table_name}\nFIELDS:\n{json.dumps(field_metadata, indent=2)}"
+            tables_info.append(table_info)
+        
+        tables_section = "\n\n".join(tables_info)
+        
+        return f"""
+Analyze the following related database tables and their fields together to understand their semantic relationships:
+
+{tables_section}
+
+For each field in each table, determine:
+1. SEMANTIC_TYPE: Choose from:
+   - TRANSACTIONAL_VALUE: Fields representing actual money exchanged in transactions
+   - REFERENCE_PRICE: Listed/catalog prices (not actual transaction values)
+   - QUANTITY: Counts, amounts, volumes, numeric measurements
+   - IDENTIFIER: Keys, IDs, references to other entities
+   - TEMPORAL: Dates, timestamps, time-based fields
+   - CATEGORICAL: Classifications, statuses, types, categories
+   - DESCRIPTIVE: Names, descriptions, text content
+   - CALCULATED: Derived measures, computed values
+
+2. BUSINESS_PURPOSE: One sentence explaining what this field represents in business terms
+
+3. CONFIDENCE_SCORE: 0.0-1.0 confidence in the semantic type classification
+
+4. USAGE_RECOMMENDATIONS: List of when/how to use this field appropriately
+
+5. COMMON_MISTAKES: List of common mistakes when using this field
+
+6. RELATED_FIELDS: List of other field names (from any table) that are commonly used together
+
+IMPORTANT: Consider relationships between tables when analyzing fields. 
+For example, if one table has transaction data and another has product details, 
+note how they might be joined and used together in business queries.
+
+Respond in this exact JSON format:
+{{
+  "field_qualified_name": {{
+    "semantic_type": "SEMANTIC_TYPE_VALUE",
+    "business_purpose": "Business explanation",
+    "confidence_score": 0.95,
+    "usage_recommendations": ["recommendation1", "recommendation2"],
+    "common_mistakes": ["mistake1", "mistake2"],
+    "related_fields": ["field1", "field2"]
+  }}
+}}
+
+CRITICAL: For e-commerce/transaction data:
+- Fields representing actual money received should be TRANSACTIONAL_VALUE
+- Catalog/listed prices should be REFERENCE_PRICE  
+- Revenue calculations should use TRANSACTIONAL_VALUE fields, never REFERENCE_PRICE
+- Consider table relationships when recommending related fields
+"""
+    
     def _parse_field_analysis_response(self, response: str, fields: List[FieldInfo]) -> Dict[str, EnrichedFieldInfo]:
         """Parse Gemini's field analysis response."""
         try:
@@ -296,6 +488,45 @@ CRITICAL: For e-commerce/transaction data:
         except Exception as e:
             self.logger.error(f"Error parsing field analysis response: {e}")
             return self._create_fallback_field_analysis(fields)
+    
+    def _parse_batch_field_analysis_response(self, response: str, all_fields: List[FieldInfo]) -> Dict[str, EnrichedFieldInfo]:
+        """Parse Gemini's batch field analysis response."""
+        try:
+            # Clean the response to extract JSON
+            response = response.strip()
+            if response.startswith("```json"):
+                response = response[7:]
+            if response.endswith("```"):
+                response = response[:-3]
+            response = response.strip()
+            
+            analysis_data = json.loads(response)
+            
+            enriched_fields = {}
+            field_map = {f.qualified_name: f for f in all_fields}
+            
+            for qualified_name, analysis in analysis_data.items():
+                if qualified_name in field_map:
+                    try:
+                        semantic_type = FieldSemanticType(analysis["semantic_type"].lower())
+                    except ValueError:
+                        semantic_type = FieldSemanticType.DESCRIPTIVE  # Fallback
+                    
+                    enriched_fields[qualified_name] = EnrichedFieldInfo(
+                        field_info=field_map[qualified_name],
+                        semantic_type=semantic_type,
+                        business_purpose=analysis.get("business_purpose", ""),
+                        confidence_score=analysis.get("confidence_score", 0.5),
+                        usage_recommendations=analysis.get("usage_recommendations", []),
+                        common_mistakes=analysis.get("common_mistakes", []),
+                        related_fields=analysis.get("related_fields", [])
+                    )
+            
+            return enriched_fields
+            
+        except Exception as e:
+            self.logger.error(f"Error parsing batch field analysis response: {e}")
+            return self._create_fallback_field_analysis(all_fields)
     
     def _create_fallback_field_analysis(self, fields: List[FieldInfo]) -> Dict[str, EnrichedFieldInfo]:
         """Create basic field analysis as fallback."""
@@ -682,14 +913,7 @@ Respond in this exact JSON format:
         
         return relationship_insights
     
-    def _get_cached_result(self, cache_key: str) -> Optional[Any]:
-        """Get cached result if still valid."""
-        if cache_key in self._cache and cache_key in self._cache_timestamps:
-            if time.time() - self._cache_timestamps[cache_key] < self.cache_ttl:
-                return self._cache[cache_key]
-        return None
-    
-    def _cache_result(self, cache_key: str, result: Any) -> None:
-        """Cache analysis result."""
-        self._cache[cache_key] = result
-        self._cache_timestamps[cache_key] = time.time()
+    def clear_cache(self) -> None:
+        """Clear persistent schema intelligence cache."""
+        self.persistent_storage.clear_cache()
+        self.logger.info("Schema intelligence persistent cache cleared")
