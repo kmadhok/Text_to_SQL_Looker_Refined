@@ -80,7 +80,8 @@ class SchemaIntelligencePersistentStorage:
         for model_name, model in grounding_index.lookml_project.models.items():
             hash_content.append(f"model:{model_name}")
             for explore in model.explores.values():
-                hash_content.append(f"explore:{explore.name}:{explore.base_view}")
+                # LookMLExplore exposes base_view_name (not base_view)
+                hash_content.append(f"explore:{explore.name}:{explore.base_view_name}")
 
         # Add views with counts (cheap proxy for schema changes)
         for view_name, view in grounding_index.lookml_project.views.items():
